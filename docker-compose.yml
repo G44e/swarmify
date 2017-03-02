@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  zk:
+    image: zookeeper-swarm
+    environment:
+      - ZOO_SERVER_NAME=zk
+      - ZOO_SERVER_COUNT=3
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+
+  zk-cli:
+    image: zookeeper
+    command: bash
+    tty: true
+    stdin_open: true
