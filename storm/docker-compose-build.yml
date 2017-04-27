@@ -1,0 +1,7 @@
+version: '3'
+services:
+  storm:
+    image: ${PREFIX}storm-swarm
+    build:
+      context: .
+      dockerfile: Dockerfile

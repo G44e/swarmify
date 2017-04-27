@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+  nimbus:
+    image: ${PREFIX}storm-swarm
+    command:
+      - "storm"
+      - "nimbus"
+    environment:
+      - STORM_ZOOKEEPER_NAME=zk
+      - STORM_ZOOKEEPER_COUNT=${STORM_ZOOKEEPER_COUNT}
+      - STORM_NIMBUS_NAME=nimbus
+      - STORM_NIMBUS_COUNT=${STORM_NIMBUS_COUNT}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    networks:
+      - zk
+      - storm
+    volumes:
+      - logs:/datalog
+  nimbus_log:
+    image: openjdk:8-jre-alpine
+    command: "tail -f /logs/nimbus.log"
+    deploy:
+      mode: global
+    volumes:
+      - logs:/logs
+  ui:
+    image: ${PREFIX}storm-swarm
+    command:
+      - "storm"
+      - "ui"
+    environment:
+      - STORM_ZOOKEEPER_NAME=zk
+      - STORM_ZOOKEEPER_COUNT=${STORM_ZOOKEEPER_COUNT}
+      - STORM_NIMBUS_NAME=nimbus
+      - STORM_NIMBUS_COUNT=${STORM_NIMBUS_COUNT}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    networks:
+      - zk
+      - storm
+    ports:
+      - "8080:8080"
+  supervisor:
+    image: ${PREFIX}storm-swarm
+    command:
+      - "storm"
+      - "supervisor"
+    environment:
+      - STORM_ZOOKEEPER_NAME=zk
+      - STORM_ZOOKEEPER_COUNT=${STORM_ZOOKEEPER_COUNT}
+      - STORM_NIMBUS_NAME=nimbus
+      - STORM_NIMBUS_COUNT=${STORM_NIMBUS_COUNT}
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    networks:
+      - zk
+      - storm
+  topology:
+    image: ${PREFIX}storm-swarm
+    command:
+      - storm
+      - jar
+      - "/apache-storm-1.0.3/examples/storm-starter/storm-starter-topologies-1.0.3.jar"
+      - org.apache.storm.starter.RollingTopWords
+      - rolling-top-words
+      - remote
+    environment:
+      - STORM_ZOOKEEPER_NAME=zk
+      - STORM_ZOOKEEPER_COUNT=${STORM_ZOOKEEPER_COUNT}
+      - STORM_NIMBUS_NAME=nimbus
+      - STORM_NIMBUS_COUNT=${STORM_NIMBUS_COUNT}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    networks:
+      - zk
+      - storm
+  command:
+    image: ${PREFIX}storm-swarm
+    command:
+      - storm
+      - help
+    environment:
+      - STORM_ZOOKEEPER_NAME=zk
+      - STORM_ZOOKEEPER_COUNT=${STORM_ZOOKEEPER_COUNT}
+      - STORM_NIMBUS_NAME=nimbus
+      - STORM_NIMBUS_COUNT=${STORM_NIMBUS_COUNT}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    networks:
+      - zk
+      - storm
+
+networks:
+  storm:
+    driver: overlay
+  zk:
+    external:
+      name: zk_default
+
+volumes:
+  logs:
