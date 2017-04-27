@@ -56,14 +56,14 @@ def config_values(get, ips):
     >>> config_values(lambda x: x + '_VALUE', ['hello', 'world'])
     {'clientPort': 'ZOO_PORT_VALUE', 'dataDir': 'ZOO_DATA_DIR_VALUE', 'dataLogDir': 'ZOO_DATA_LOG_DIR_VALUE', 'tickTime': 'ZOO_TICK_TIME_VALUE', 'initLimit': 'ZOO_INIT_LIMIT_VALUE', 'syncLimit': 'ZOO_SYNC_LIMIT_VALUE', 'server.1': 'hello:2888:3888', 'server.2': 'world:2888:3888'}
     """
-    config_items = [
-        ("clientPort", "ZOO_PORT"),
-        ("dataDir", "ZOO_DATA_DIR"),
-        ("dataLogDir", "ZOO_DATA_LOG_DIR"),
-        ("tickTime", "ZOO_TICK_TIME"),
-        ("initLimit", "ZOO_INIT_LIMIT"),
-        ("syncLimit", "ZOO_SYNC_LIMIT")]
-    m = dict((k, get(v)) for k, v in config_items)
+    config_items = {
+        "clientPort": "ZOO_PORT",
+        "dataDir": "ZOO_DATA_DIR",
+        "dataLogDir": "ZOO_DATA_LOG_DIR",
+        "tickTime": "ZOO_TICK_TIME",
+        "initLimit": "ZOO_INIT_LIMIT",
+        "syncLimit": "ZOO_SYNC_LIMIT"}
+    m = {k: get(v) for k, v in config_items.items()}
     m.update(("server.%s" % (n + 1,), "%s:2888:3888" % (ip,)) for n, ip in enumerate(ips))
     return m
 

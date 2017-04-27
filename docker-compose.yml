@@ -2,12 +2,12 @@ version: '3'
 
 services:
   zk:
-    image: zookeeper-swarm
+    image: ${PREFIX}zookeeper-swarm
     environment:
       - ZOO_SERVER_NAME=zk
-      - ZOO_SERVER_COUNT=3
+      - ZOO_SERVER_COUNT=1
     deploy:
-      replicas: 3
+      replicas: 1
       restart_policy:
         condition: on-failure
 
